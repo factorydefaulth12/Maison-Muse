@@ -1,0 +1,19 @@
+{
+  "name": "Maison Muse",
+  "short_name": "Maison Muse",
+  "description": "A digital couture atelier. Style your muse and save your signature looks.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#17131c",
+  "theme_color": "#211629",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
