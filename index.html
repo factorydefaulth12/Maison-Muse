@@ -117,7 +117,7 @@ function applyBodyType(){
  garmentGroup.scale.set(p.x,p.y,p.z);
  // A little extra lower-body volume for pear and plus-size presets.
  garmentGroup.position.y=0;
- $('#bodyOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.body===state.bodyType);b.querySelector('.check').textContent=b.dataset.body===state.bodyType?'✦':''});
+ $$('#bodyOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.body===state.bodyType);b.querySelector('.check').textContent=b.dataset.body===state.bodyType?'✦':''});
 }
 function buildBody(){
  poseGroup.clear();const skin=mat(0xb97861,.62),skinLight=mat(0xc88c73,.58),hair=mat(0x38263a,.32),hairHi=mat(0x63465f,.35),eye=mat(0x34202e,.28),lip=mat(0x985565,.42);
@@ -221,7 +221,7 @@ function buildAccessories(){
 function updateDetails(){
  const labels={gown:['The Celestine','Ball gown','Organza & satin'],slip:['Silk Reverie','Bias-cut slip','Liquid silk'],mini:['Rosewater','Petal mini','Satin & appliqué'],suit:['The Muse Suit','Tailored suit','Jacquard suiting']};
  const d=labels[state.outfit];$('#lookTitle').textContent=d[0];$('#detailSilhouette').textContent=d[1];$('#detailFabric').textContent=d[2];$('#detailMessage').textContent='Fitting complete · '+state.accessory.charAt(0).toUpperCase()+state.accessory.slice(1)+' finish';
- $$('#outfitOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.outfit===state.outfit);b.querySelector('.check').textContent=b.dataset.outfit===state.outfit?'✦':''});
+ $$$('#outfitOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.outfit===state.outfit);b.querySelector('.check').textContent=b.dataset.outfit===state.outfit?'✦':''});
  $$('#accessoryOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.accessory===state.accessory);b.querySelector('.check').textContent=b.dataset.accessory===state.accessory?'✦':''});
  $$('#swatches .swatch').forEach(b=>b.classList.toggle('active',b.dataset.color===state.color));
 }
@@ -246,8 +246,8 @@ function downloadFile(name,data,type){const blob=new Blob([data],{type}),url=URL
 function exportLook(){const look=snapshot();const data=JSON.stringify(look,null,2);downloadFile('maison-muse-look.json',data,'application/json');toast('Look exported as a keepsake ✧')}
 function exportLookbook(){downloadFile('maison-muse-lookbook.json',JSON.stringify(saved,null,2),'application/json');toast('Lookbook exported');closeModal()}
 function randomLook(){const outfits=['gown','slip','mini','suit'],colors=['#b998d2','#d7a0b5','#cbb78e','#78958e','#52647f','#e6d9cf'],accessories=['pearls','bow','none'];state.outfit=outfits[Math.floor(Math.random()*outfits.length)];state.color=colors[Math.floor(Math.random()*colors.length)];state.accessory=accessories[Math.floor(Math.random()*accessories.length)];const bodies=['athletic','hourglass','pear','petite','plus'];state.bodyType=bodies[Math.floor(Math.random()*bodies.length)];buildGarment();buildAccessories();applyBodyType();updateDetails();toast('A fresh look from the atelier ✨')}
-$('#outfitOptions .option').forEach(b=>b.addEventListener('click',()=>changeOutfit(b.dataset.outfit)));
-$('#bodyOptions .option').forEach(b=>b.addEventListener('click',()=>{state.bodyType=b.dataset.body;applyBodyType();toast('Silhouette updated ✧')}));
+$$('#outfitOptions .option').forEach(b=>b.addEventListener('click',()=>changeOutfit(b.dataset.outfit)));
+$$('#bodyOptions .option').forEach(b=>b.addEventListener('click',()=>{state.bodyType=b.dataset.body;applyBodyType();toast('Silhouette updated ✧')}));
 $$('#swatches .swatch').forEach(b=>b.addEventListener('click',()=>{state.color=b.dataset.color;buildGarment();buildAccessories();updateDetails()}));
 $$('#accessoryOptions .option').forEach(b=>b.addEventListener('click',()=>{state.accessory=b.dataset.accessory;buildAccessories();updateDetails()}));
 $('#saveBtn').addEventListener('click',saveLook);$('#savedOpen').addEventListener('click',()=>openModal('saved'));$('#modalClose').addEventListener('click',closeModal);$('#modalback').addEventListener('click',e=>{if(e.target===$('#modalback'))closeModal()});$('#modalAction').addEventListener('click',exportLookbook);
