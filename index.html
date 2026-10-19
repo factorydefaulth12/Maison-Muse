@@ -221,7 +221,7 @@ function buildAccessories(){
 function updateDetails(){
  const labels={gown:['The Celestine','Ball gown','Organza & satin'],slip:['Silk Reverie','Bias-cut slip','Liquid silk'],mini:['Rosewater','Petal mini','Satin & appliqué'],suit:['The Muse Suit','Tailored suit','Jacquard suiting']};
  const d=labels[state.outfit];$('#lookTitle').textContent=d[0];$('#detailSilhouette').textContent=d[1];$('#detailFabric').textContent=d[2];$('#detailMessage').textContent='Fitting complete · '+state.accessory.charAt(0).toUpperCase()+state.accessory.slice(1)+' finish';
- $$$('#outfitOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.outfit===state.outfit);b.querySelector('.check').textContent=b.dataset.outfit===state.outfit?'✦':''});
+ $('#outfitOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.outfit===state.outfit);b.querySelector('.check').textContent=b.dataset.outfit===state.outfit?'✦':''});
  $$('#accessoryOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.accessory===state.accessory);b.querySelector('.check').textContent=b.dataset.accessory===state.accessory?'✦':''});
  $$('#swatches .swatch').forEach(b=>b.classList.toggle('active',b.dataset.color===state.color));
 }
