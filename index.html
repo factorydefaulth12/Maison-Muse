@@ -27,6 +27,13 @@
 <button class="option" data-outfit="mini"><span class="optionicon">✿</span><span><div class="optionname">Rosewater</div><div class="optiondesc">Modern mini · petal hem</div></span><span class="check"></span></button>
 <button class="option" data-outfit="suit"><span class="optionicon">✧</span><span><div class="optionname">The Muse Suit</div><div class="optiondesc">Tailored · double-breasted</div></span><span class="check"></span></button>
 </div>
+<div class="sectionlabel" style="margin-top:22px">Body silhouette</div><p style="font-size:10px;color:var(--muted);line-height:1.6;margin:-3px 0 11px">Choose your muse’s starting proportions.</p><div class="option-list" id="bodyOptions">
+<button class="option" data-body="athletic"><span class="optionicon">◇</span><span><div class="optionname">Athletic</div><div class="optiondesc">Strong, balanced lines</div></span><span class="check"></span></button>
+<button class="option active" data-body="hourglass"><span class="optionicon">⌁</span><span><div class="optionname">Hourglass</div><div class="optiondesc">Defined waist</div></span><span class="check">✦</span></button>
+<button class="option" data-body="pear"><span class="optionicon">♧</span><span><div class="optionname">Pear</div><div class="optiondesc">Fuller lower silhouette</div></span><span class="check"></span></button>
+<button class="option" data-body="petite"><span class="optionicon">✧</span><span><div class="optionname">Petite</div><div class="optiondesc">Compact proportions</div></span><span class="check"></span></button>
+<button class="option" data-body="plus"><span class="optionicon">❀</span><span><div class="optionname">Plus-size</div><div class="optiondesc">Fuller, softer lines</div></span><span class="check"></span></button>
+</div>
 <div class="sectionlabel" style="margin-top:22px">Colour story</div><div class="swatches" id="swatches">
 <button class="swatch active" data-color="#b998d2" style="background:#b998d2" aria-label="Orchid lilac"></button><button class="swatch" data-color="#d7a0b5" style="background:#d7a0b5" aria-label="Rosewater pink"></button><button class="swatch" data-color="#cbb78e" style="background:#cbb78e" aria-label="Champagne gold"></button><button class="swatch" data-color="#78958e" style="background:#78958e" aria-label="Sage green"></button><button class="swatch" data-color="#52647f" style="background:#52647f" aria-label="Midnight blue"></button><button class="swatch" data-color="#e6d9cf" style="background:#e6d9cf" aria-label="Pearl ivory"></button>
 </div>
@@ -54,7 +61,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const state={outfit:'gown',color:'#b998d2',accessory:'pearls',name:'Amara',autoRotate:false,pose:0};
+const state={outfit:'gown',color:'#b998d2',accessory:'pearls',bodyType:'hourglass',name:'Amara',autoRotate:false,pose:0};
 const savedKey='maisonMuseCoutureLookbookV1';
 let saved=loadSaved(),scene,camera,renderer,controls,muse,garmentGroup,accessoryGroup,clock,toastTimer,poseGroup;
 const toast=msg=>{const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2400)};
@@ -84,10 +91,26 @@ function createScene(){
  const archCurve=new THREE.Mesh(new THREE.TorusGeometry(2.25,.06,12,80,Math.PI),archMat);archCurve.position.set(0,4.3,0);arch.add(archCurve);
  for(let i=0;i<22;i++){const a=i*2.399;const radius=2.7+(i%4)*.35;const p=sphere(scene,Math.cos(a)*radius,1.2+(i*1.37)%5,Math.sin(a)*.8-1.2,.025+(i%3)*.009,.025+(i%3)*.009,.025+(i%3)*.009,new THREE.MeshBasicMaterial({color:i%3===0?0xd6b985:0xd8b5ef,transparent:true,opacity:.5}));}
  muse=new THREE.Group();scene.add(muse);poseGroup=new THREE.Group();muse.add(poseGroup);garmentGroup=new THREE.Group();muse.add(garmentGroup);accessoryGroup=new THREE.Group();muse.add(accessoryGroup);
- buildBody();buildGarment();buildAccessories();
+ buildBody();buildGarment();buildAccessories();applyBodyType();
  clock=new THREE.Clock();animate();
  const resize=()=>{if(!host.clientWidth||!host.clientHeight)return;camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight)};
  new ResizeObserver(resize).observe(host);
+}
+function applyBodyType(){
+ // Preset proportions for this procedural prototype. The body and garment stay in sync.
+ const profiles={
+  athletic:{x:1.04,y:1.01,z:1.02,hip:1.00},
+  hourglass:{x:1.00,y:1.00,z:1.00,hip:1.00},
+  pear:{x:1.04,y:1.00,z:1.03,hip:1.13},
+  petite:{x:.96,y:.91,z:.98,hip:.98},
+  plus:{x:1.15,y:1.00,z:1.12,hip:1.14}
+ };
+ const p=profiles[state.bodyType]||profiles.hourglass;
+ poseGroup.scale.set(p.x,p.y,p.z);
+ garmentGroup.scale.set(p.x,p.y,p.z);
+ // A little extra lower-body volume for pear and plus-size presets.
+ garmentGroup.position.y=0;
+ $('#bodyOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.body===state.bodyType);b.querySelector('.check').textContent=b.dataset.body===state.bodyType?'✦':''});
 }
 function buildBody(){
  poseGroup.clear();const skin=mat(0xb97861,.62),skinLight=mat(0xc88c73,.58),hair=mat(0x38263a,.32),hairHi=mat(0x63465f,.35),eye=mat(0x34202e,.28),lip=mat(0x985565,.42);
@@ -195,11 +218,11 @@ function updateDetails(){
  $$('#accessoryOptions .option').forEach(b=>{b.classList.toggle('active',b.dataset.accessory===state.accessory);b.querySelector('.check').textContent=b.dataset.accessory===state.accessory?'✦':''});
  $$('#swatches .swatch').forEach(b=>b.classList.toggle('active',b.dataset.color===state.color));
 }
-function changeOutfit(value){state.outfit=value;buildGarment();buildAccessories();updateDetails()}
+function changeOutfit(value){state.outfit=value;buildGarment();buildAccessories();applyBodyType();updateDetails()}
 function animate(){requestAnimationFrame(animate);const t=clock?clock.getElapsedTime():0;if(muse){muse.rotation.y+=(state.pose*Math.PI/7-muse.rotation.y)*.04;accessoryGroup.rotation.y=0;}if(controls){controls.autoRotate=state.autoRotate;controls.update()}renderer.render(scene,camera)}
-function snapshot(){return{outfit:state.outfit,color:state.color,accessory:state.accessory,name:state.name,created:new Date().toISOString()}}
+function snapshot(){return{outfit:state.outfit,color:state.color,accessory:state.accessory,bodyType:state.bodyType,name:state.name,created:new Date().toISOString()}}
 function saveLook(){const look=snapshot();look.id=Date.now();saved.unshift(look);saved=saved.slice(0,60);persist();toast('Saved to your lookbook ♡');}
-function applyLook(look){state.outfit=look.outfit||'gown';state.color=look.color||'#b998d2';state.accessory=look.accessory||'pearls';state.name=look.name||'Amara';$('#museName').textContent=state.name;buildGarment();buildAccessories();updateDetails();closeModal();toast('Look restored to the atelier ✧')}
+function applyLook(look){state.outfit=look.outfit||'gown';state.color=look.color||'#b998d2';state.accessory=look.accessory||'pearls';state.bodyType=look.bodyType||'hourglass';state.name=look.name||'Amara';$('#museName').textContent=state.name;buildGarment();buildAccessories();applyBodyType();updateDetails();closeModal();toast('Look restored to the atelier ✧')}
 function openModal(type='saved'){
  const back=$('#modalback'),content=$('#modalContent');content.innerHTML='';
  if(type==='saved'){
@@ -215,8 +238,9 @@ function closeModal(){$('#modalback').classList.remove('open')}
 function downloadFile(name,data,type){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),800)}
 function exportLook(){const look=snapshot();const data=JSON.stringify(look,null,2);downloadFile('maison-muse-look.json',data,'application/json');toast('Look exported as a keepsake ✧')}
 function exportLookbook(){downloadFile('maison-muse-lookbook.json',JSON.stringify(saved,null,2),'application/json');toast('Lookbook exported');closeModal()}
-function randomLook(){const outfits=['gown','slip','mini','suit'],colors=['#b998d2','#d7a0b5','#cbb78e','#78958e','#52647f','#e6d9cf'],accessories=['pearls','bow','none'];state.outfit=outfits[Math.floor(Math.random()*outfits.length)];state.color=colors[Math.floor(Math.random()*colors.length)];state.accessory=accessories[Math.floor(Math.random()*accessories.length)];buildGarment();buildAccessories();updateDetails();toast('A fresh look from the atelier ✨')}
-$$('#outfitOptions .option').forEach(b=>b.addEventListener('click',()=>changeOutfit(b.dataset.outfit)));
+function randomLook(){const outfits=['gown','slip','mini','suit'],colors=['#b998d2','#d7a0b5','#cbb78e','#78958e','#52647f','#e6d9cf'],accessories=['pearls','bow','none'];state.outfit=outfits[Math.floor(Math.random()*outfits.length)];state.color=colors[Math.floor(Math.random()*colors.length)];state.accessory=accessories[Math.floor(Math.random()*accessories.length)];const bodies=['athletic','hourglass','pear','petite','plus'];state.bodyType=bodies[Math.floor(Math.random()*bodies.length)];buildGarment();buildAccessories();applyBodyType();updateDetails();toast('A fresh look from the atelier ✨')}
+$('#outfitOptions .option').forEach(b=>b.addEventListener('click',()=>changeOutfit(b.dataset.outfit)));
+$('#bodyOptions .option').forEach(b=>b.addEventListener('click',()=>{state.bodyType=b.dataset.body;applyBodyType();toast('Silhouette updated ✧')}));
 $$('#swatches .swatch').forEach(b=>b.addEventListener('click',()=>{state.color=b.dataset.color;buildGarment();buildAccessories();updateDetails()}));
 $$('#accessoryOptions .option').forEach(b=>b.addEventListener('click',()=>{state.accessory=b.dataset.accessory;buildAccessories();updateDetails()}));
 $('#saveBtn').addEventListener('click',saveLook);$('#savedOpen').addEventListener('click',()=>openModal('saved'));$('#modalClose').addEventListener('click',closeModal);$('#modalback').addEventListener('click',e=>{if(e.target===$('#modalback'))closeModal()});$('#modalAction').addEventListener('click',exportLookbook);
